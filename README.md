@@ -137,3 +137,13 @@ Submitted answers are stored for review
 Current position in each language is remembered
 
 Progress syncs across devices
+
+
+
+Core Frontend Technologies
+
+ HTML5 (Semantic Markup)
+ CSS3 (Modern Styling)
+ Vanilla JavaScript (ES6+)
+ Font Awesome 6 (Icon System)
+
