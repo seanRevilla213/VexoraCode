@@ -1,972 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>Vexora•Code · Horizon</title>
-  <!-- Font Awesome 6 (free) -->
+  <title>Vexora•Code · level‑locked quiz</title>
+  <!-- Font Awesome 6 & Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="shortcut icon" href="terminal.png" type="image/x-icon">
-  <!-- Firebase SDKs (compat) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800;14..32,900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <style>
-    /* ----- MODERN RESET & BOLD VISUALS (CRYSTAL CLEAR TITLES) ----- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
 
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-deep: #0a0f1e;
-      --bg-card: #16213b;
-      --primary-glow: #3b82f6;
-      --primary-bold: #2563eb;
-      --accent-blaze: #f97316;
-      --success-emerald: #10b981;
-      --danger-coral: #ef4444;
-      --text-bright: #f8fafc;
-      --text-soft: #cbd5e1;
-      --border-aura: rgba(59, 130, 246, 0.5);
+      --bg-deep: #0a0c14;
+      --bg-elevated: #141b2b;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --primary-glow: #2563eb;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-head: #ffffff;
+      --text-body: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border-glow: rgba(59,130,246,0.5);
       --easy: #34d399;
       --medium: #fbbf24;
       --hard: #f87171;
       --expert: #c084fc;
-      --font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'Fira Code', monospace;
     }
 
     body {
+      background: linear-gradient(145deg, #afb5bf 0%, #030614 100%);
+      font-family: var(--font-sans);
+      color: var(--text-body);
       min-height: 100vh;
-      background: radial-gradient(circle at 40% 30%, #1e2b47, #0a0f1e 90%);
-      font-family: var(--font-display);
-      color: var(--text-bright);
-      line-height: 1.5;
     }
 
-    .app-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem;
-    }
+    .app-wrapper { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; }
 
-    /* ----- AUTH (crisp & modern) ----- */
-    .auth-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
+    .auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
     .auth-card {
-      background: rgba(12, 20, 35, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 3.5rem;
-      padding: 3.5rem 2.5rem;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 40px 70px -15px #000000cc, 0 0 0 2px rgba(96, 165, 250, 0.3) inset;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      text-align: center;
+      background: rgba(10,16,28,0.9); backdrop-filter: blur(20px); border-radius: 3.5rem; padding: 3rem 1rem;
+      width: min(500px,96%); box-shadow: 0 30px 60px -10px #000, 0 0 0 2px #3b82f630 inset; text-align: center;
     }
+    .auth-title { font-size: 3.8rem; font-weight: 900; color: white; text-shadow: 0 0 20px #3b82f6; border-bottom: 4px solid transparent; border-image: linear-gradient(90deg, #f59e0b, #3b82f6, #a78bfa) 1; border-bottom-style: solid; display: inline-flex; gap: 0.8rem; margin-bottom: 1rem; }
+    .google-btn { width: 100%; padding: 1.1rem; background: white; border-radius: 4rem; font-size: 1.3rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 1.2rem; cursor: pointer; transition: 0.2s; color: #1e293b; border: none; box-shadow: 0 20px 30px -8px black; }
+    .google-btn:hover { background: #f0f9ff; transform: scale(1.02) translateY(-3px); }
 
-    /* ✅ ULTRA-BRIGHT TITLE: pure white with vibrant underline and shadow */
-    .auth-title,
-    .logo {
-      font-size: 3.8rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      color: white;
-      /* base pure white */
-      text-shadow: 0 4px 20px #3b82f6, 0 0 40px #60a5fa, 0 0 60px #2563eb;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      filter: drop-shadow(0 8px 12px black);
-      border-bottom: 4px solid transparent;
-      border-image: linear-gradient(90deg, #ffdb9f, #60a5fa, #b79aff) 1;
-      border-bottom-style: solid;
-      /* ← vibrant underline */
-      padding-bottom: 0.2rem;
-    }
+    .main-app { display: none; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem; }
+    .logo { font-size: 2.5rem; font-weight: 900; color: white; text-shadow: 0 0 15px #3b82f6; border-bottom: 3px solid transparent; border-image: linear-gradient(90deg,#f59e0b,#3b82f6,#c084fc) 1; border-bottom-style: solid; display: flex; align-items: center; gap: 0.6rem; }
+    .user-menu { background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); padding: 0.4rem 1.5rem 0.4rem 1.8rem; border-radius: 4rem; border: 1px solid #3b82f630; display: flex; align-items: center; gap: 1rem; }
+    #userName { font-weight: 600; color: white; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+    .logout-btn { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 0.35rem 1.2rem; border-radius: 3rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .logout-btn:hover { background: var(--danger); color: #0b1120; border-color: transparent; }
 
-    .auth-title i,
-    .logo i {
-      font-size: 3.5rem;
-      color: white;
-      text-shadow: 0 0 20px #60a5fa, 0 0 40px #3b82f6;
-      -webkit-text-stroke: 1px rgba(255, 255, 240, 0.4);
+    /* language matrix */
+    .lang-section-header {
+      display: flex; align-items: center; justify-content: space-between; margin: 1rem 0 1.5rem;
+      background: rgba(10,16,28,0.6); backdrop-filter: blur(10px); padding: 1rem 2rem; border-radius: 5rem;
+      border: 1px solid rgba(255,255,255,0.02); cursor: pointer; user-select: none; transition: 0.2s;
     }
+    .lang-section-header:hover { background: #1e324a; border-color: var(--primary); box-shadow: 0 0 20px #3b82f670; }
+    .lang-section-header .arrow { font-size: 2rem; transition: transform 0.4s ease; color: var(--accent); }
+    .lang-section-header.collapsed .arrow { transform: rotate(-90deg); }
+    .lang-section-header h2 { font-size: 2rem; font-weight: 700; color: white; text-shadow: 0 2px 10px black; }
+    .lang-section-header h2 i { margin-right: 1rem; color: var(--primary); }
 
-    .auth-sub {
-      color: var(--text-soft);
-      font-size: 1.3rem;
-      margin-bottom: 2.5rem;
-      border-bottom: 1px dashed #3b82f660;
-      padding-bottom: 1.5rem;
-    }
-
-    .google-btn {
-      width: 100%;
-      padding: 1.1rem 1.5rem;
-      background: white;
-      border: none;
-      border-radius: 4rem;
-      font-size: 1.3rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.2rem;
-      cursor: pointer;
-      transition: 0.2s;
-      box-shadow: 0 12px 25px -5px #000000b3;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #1e293b;
-    }
-
-    .google-btn:hover {
-      transform: scale(1.02) translateY(-4px);
-      background: #f5f9ff;
-      box-shadow: 0 25px 35px -5px var(--primary-glow);
-    }
-
-    /* ----- MAIN APP (hidden initially) ----- */
-    .main-app {
-      display: none;
-    }
-
-    /* ----- NAVBAR with super-clear logo ----- */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0 1.5rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .logo {
-      font-size: 2.8rem;
-      border-bottom: 4px solid transparent;
-      border-image: linear-gradient(90deg, #ffdb9f, #60a5fa, #b79aff) 1;
-      border-bottom-style: solid;
-    }
-
-    .logo i {
-      font-size: 2.6rem;
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 0.5rem 1.5rem 0.5rem 1.8rem;
-      border-radius: 4rem;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 5px 20px black;
-    }
-
-    .user-menu i {
-      font-size: 1.8rem;
-      color: var(--primary-glow);
-    }
-
-    #userName {
-      font-weight: 600;
-      color: white;
-      max-width: 180px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .logout-btn {
-      padding: 0.5rem 1.3rem;
-      background: rgba(248, 113, 113, 0.15);
-      border: 1px solid var(--danger-coral);
-      border-radius: 3rem;
-      color: var(--danger-coral);
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.95rem;
-    }
-
-    .logout-btn:hover {
-      background: var(--danger-coral);
-      color: #0b1120;
-      border-color: transparent;
-    }
-
-    /* ----- LANGUAGE GRID ----- */
-    .languages-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 1.2rem;
-      margin: 1.5rem 0 2rem;
-    }
+    .languages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 1.4rem; margin: 1rem 0 2rem; transition: opacity 0.3s; }
+    .languages-grid.collapsed { display: none; }
 
     .lang-card {
-      background: rgba(16, 24, 40, 0.8);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 2rem;
-      padding: 1.4rem 1rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 15px 25px -10px black;
-      position: relative;
-      overflow: hidden;
+      background: rgba(18,26,40,0.8); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.02);
+      border-radius: 2rem; padding: 1.5rem 0.8rem; text-align: center; transition: 0.25s; box-shadow: 0 15px 30px -12px black;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .lang-card::after { content: ''; position: absolute; inset: 0; border-radius: 2rem; padding: 2px; background: linear-gradient(145deg, #3b82f6, #f59e0b, #c084fc); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: 0.3s; }
+    .lang-card:hover::after { opacity: 0.8; }
+    .lang-card:hover { transform: translateY(-6px) scale(1.02); background: #1f2a44; }
+    .lang-card.selected { border: 2px solid transparent; background: #1e2f4a; box-shadow: 0 0 35px #2563eb; }
+
+    .lang-icon { font-size: 3.2rem; filter: drop-shadow(0 8px 12px black); }
+    .lang-name { font-weight: 800; font-size: 1.4rem; margin: 0.6rem 0 0.2rem; color: white; }
+    .lang-progress { font-size: 1rem; font-weight: 600; color: var(--text-muted); display: flex; justify-content: center; gap: 0.3rem; }
+    .progress-bar { height: 6px; background: #0f1a2b; border-radius: 10px; margin: 0.8rem 1.2rem 0.4rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent), #c084fc); width: 0%; border-radius: 10px; }
+
+    /* QUIZ PANEL */
+    .quiz-panel {
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(14px); border-radius: 2.5rem; padding: 2rem;
+      margin: 1.5rem 0 2rem; border: 1px solid #3b82f670;
     }
 
-    .lang-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 2rem;
-      padding: 2px;
-      background: linear-gradient(145deg, transparent 30%, var(--primary-glow), transparent 70%);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0;
-      transition: 0.3s;
-    }
-
-    .lang-card:hover::before {
-      opacity: 0.7;
-    }
-
-    .lang-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      background: rgba(28, 40, 60, 0.95);
-    }
-
-    .lang-card.selected {
-      border: 2px solid var(--primary-glow);
-      background: rgba(37, 99, 235, 0.2);
-      box-shadow: 0 0 30px #2563eb;
-    }
-
-    .lang-icon {
-      font-size: 2.6rem;
-      margin-bottom: 0.8rem;
-      filter: drop-shadow(0 6px 10px black);
-    }
-
-    .lang-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.2rem;
-    }
-
-    .lang-progress {
-      font-size: 0.85rem;
-      color: var(--text-soft);
-    }
-
-    .progress-bar {
-      height: 5px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 6px;
-      margin-top: 0.9rem;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary-bold), var(--accent-blaze));
-      transition: width 0.4s ease;
-    }
-
-    /* ----- MAIN LAYOUT ----- */
-    .main-content {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 1.8rem;
-      margin-top: 1rem;
-    }
-
-    /* Levels sidebar */
-    .levels-sidebar {
-      background: rgba(14, 22, 38, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: 2rem;
-      padding: 1.5rem 0.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 20px 30px -10px black;
-      height: fit-content;
-      max-height: 70vh;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-glow) #1e2a3a;
-    }
-
-    .levels-sidebar::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .levels-sidebar::-webkit-scrollbar-track {
-      background: #1e293b;
-      border-radius: 10px;
-    }
-
-    .levels-sidebar::-webkit-scrollbar-thumb {
-      background: var(--primary-glow);
-      border-radius: 10px;
-    }
-
-    .levels-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .quiz-header {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
       margin-bottom: 1.5rem;
-      padding: 0 0.5rem 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .lang-indicator {
+      background: #0b1a2b; border-radius: 4rem; padding: 0.5rem 1.8rem; font-weight: 700; font-size: 1.5rem;
+      border: 1px solid #3b82f6; display: inline-flex; align-items: center; gap: 0.8rem;
+    }
+    .difficulty-badge {
+      font-weight: 800; padding: 0.4rem 1.8rem; border-radius: 3rem; background: #1f2a44;
+    }
+    .difficulty-badge[data-diff="easy"] { background: #065f46; color: #d1fae5; }
+    .difficulty-badge[data-diff="medium"] { background: #92400e; color: #fef3c7; }
+    .difficulty-badge[data-diff="hard"] { background: #991b1b; color: #fee2e2; }
+    .difficulty-badge[data-diff="expert"] { background: #6b21a8; color: #f3e8ff; }
+
+    .question-text {
+      font-size: 1.8rem; font-weight: 600; color: white; margin: 1rem 0 1.8rem; line-height: 1.5;
     }
 
-    .levels-header h2 {
-      font-weight: 600;
-      font-size: 1.4rem;
-      color: white;
-      text-shadow: 0 2px 8px #3b82f6;
+    /* multiple choice zone */
+    .mcq-options {
+      display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0 2rem;
     }
-
-    .level-item {
-      padding: 0.8rem 0.9rem;
-      margin-bottom: 0.3rem;
-      border-radius: 1.2rem;
-      cursor: pointer;
-      transition: 0.15s;
-      border: 1px solid transparent;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.02);
-      font-size: 0.95rem;
+    .mcq-option {
+      background: #1a2639; border: 2px solid #2d3b52; border-radius: 4rem; padding: 1rem 2rem;
+      font-size: 1.3rem; font-weight: 500; color: white; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 1.5rem;
     }
+    .mcq-option:hover { background: #263b55; border-color: var(--primary); transform: scale(1.02); }
+    .mcq-option.selected { background: #1e3f5e; border-color: var(--primary); box-shadow: 0 0 20px #3b82f6; }
 
-    .level-item:hover {
-      background: rgba(59, 130, 246, 0.2);
-      border-color: var(--primary-glow);
+    /* coding area */
+    .code-editor {
+      background: #0e1624; border-radius: 2rem; padding: 1.5rem; border: 1px solid #3b82f640; margin: 1.5rem 0;
     }
-
-    .level-item.active {
-      background: rgba(59, 130, 246, 0.3);
-      border: 1px solid var(--primary-glow);
-      box-shadow: 0 0 12px #3b82f6;
+    .code-editor textarea {
+      width: 100%; background: #020614; border: none; border-radius: 1.2rem; padding: 1.5rem;
+      font-family: var(--font-mono); font-size: 1.2rem; color: #bbd7fb; resize: vertical; min-height: 180px;
+      border: 1px solid #1e344b; outline: none;
     }
+    .code-editor textarea:focus { border-color: var(--primary); box-shadow: 0 0 20px #1e4b8f; }
 
-    .level-difficulty {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.7rem;
-      border-radius: 2rem;
-      font-weight: 700;
-      text-transform: uppercase;
+    .output-console {
+      background: #0a0f1c; border-radius: 1.5rem; padding: 1rem 1.5rem; font-family: var(--font-mono);
+      border-left: 6px solid var(--primary); margin-top: 1rem; white-space: pre-wrap; font-size: 1.1rem;
+      color: #b0c4de; max-height: 150px; overflow: auto;
     }
+    .error-console { border-left-color: var(--danger); background: #2f1520; color: #fca5a5; }
 
-    .difficulty-easy {
-      background: #14532d80;
-      color: var(--easy);
-      border: 1px solid #34d39960;
+    .quiz-actions {
+      display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 2rem; align-items: center;
     }
-
-    .difficulty-medium {
-      background: #713f1280;
-      color: var(--medium);
-      border: 1px solid #fbbf2460;
+    .primary-btn, .secondary-btn, .success-btn, .next-btn {
+      border: none; padding: 1rem 2.2rem; font-weight: 700; border-radius: 4rem; font-size: 1.2rem;
+      display: inline-flex; align-items: center; gap: 0.8rem; cursor: pointer; transition: 0.2s;
     }
+    .primary-btn { background: linear-gradient(145deg, #3b82f6, #2563eb); color: white; box-shadow: 0 10px 20px -5px #1e3a8a; }
+    .primary-btn:hover { transform: scale(1.03); background: #2563eb; }
+    .success-btn { background: #10b981; color: white; }
+    .success-btn:hover { background: #059669; transform: scale(1.03); }
+    .secondary-btn { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .secondary-btn:hover { background: rgba(59,130,246,0.2); }
+    .next-btn { background: #f59e0b; color: black; font-weight: 800; box-shadow: 0 0 15px #f59e0b; }
+    .next-btn:hover { background: #d97706; transform: scale(1.03); }
 
-    .difficulty-hard {
-      background: #7f1d1d80;
-      color: var(--hard);
-      border: 1px solid #f8717160;
+    /* progress celebration card */
+    .progress-celebration {
+      background: linear-gradient(145deg, #1e2b3f, #0f172a); border-radius: 2rem; padding: 1.8rem 2.2rem;
+      margin: 1rem 0 2rem; border: 2px solid #f59e0b; box-shadow: 0 0 50px rgba(245,158,11,0.3);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
+      animation: glowPulse 2s infinite;
     }
+    @keyframes glowPulse { 0% { border-color: #f59e0b; } 50% { border-color: #3b82f6; } 100% { border-color: #f59e0b; } }
+    .progress-message { font-size: 1.7rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 1.2rem; }
+    .progress-stats { font-size: 1.4rem; background: black; padding: 0.7rem 2rem; border-radius: 4rem; color: #fbbf24; font-weight: 700; }
 
-    .difficulty-expert {
-      background: #581c8780;
-      color: var(--expert);
-      border: 1px solid #c084fc60;
-    }
-
-    /* ----- QUESTION PANEL (ULTRA-CLEAR TITLE: PURE WHITE + BOLD SHADOW) ----- */
-    .question-panel {
-      background: rgba(14, 22, 38, 0.85);
-      backdrop-filter: blur(12px);
-      border-radius: 2.5rem;
-      padding: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 25px 40px -15px black;
-    }
-
-    .question-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.8rem;
-      padding-bottom: 0.8rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* ✅ FIXED: pure white, heavy weight, strong glow */
-    .question-title {
-      font-size: 2.4rem;
-      font-weight: 900;
-      color: white;
-      /* ← solid white */
-      text-shadow: 0 4px 15px #3b82f6, 0 0 30px #60a5fa, 0 0 50px #2563eb;
-      letter-spacing: -0.01em;
-      border-left: 8px solid #60a5fa;
-      padding-left: 1rem;
-      line-height: 1.2;
-    }
-
-    .question-description {
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 1.8rem;
-      font-family: 'Fira Code', 'Monaco', monospace;
-      white-space: pre-wrap;
-      border-left: 6px solid var(--primary-glow);
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-    }
-
-    .answer-input {
-      width: 100%;
-      min-height: 160px;
-      padding: 1.3rem;
-      background: #0b1221;
-      border: 1px solid #2d3f5e;
-      border-radius: 1.5rem;
-      color: #deecff;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.95rem;
-      resize: vertical;
-      box-shadow: 0 0 15px #00000080 inset;
-    }
-
-    .answer-input:focus {
-      outline: none;
-      border-color: var(--primary-glow);
-      box-shadow: 0 0 20px #3b82f670, inset 0 0 8px black;
-    }
-
-    .actions {
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      margin: 1.5rem 0 1rem;
-    }
-
-    .btn {
-      padding: 0.7rem 1.8rem;
-      border: none;
-      border-radius: 3rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      border: 1px solid transparent;
-    }
-
-    .btn-primary {
-      background: linear-gradient(145deg, #2563eb, #1d4ed8);
-      color: white;
-      box-shadow: 0 8px 14px -5px #0f2b5e;
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(145deg, #3b82f6, #2563eb);
-      transform: translateY(-2px);
-      box-shadow: 0 16px 20px -8px #1e3a8a;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: var(--text-soft);
-    }
-
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--primary-glow);
-    }
-
-    .feedback {
-      margin-top: 1.5rem;
-      padding: 1rem 1.5rem;
-      border-radius: 2rem;
-      display: none;
-      font-weight: 500;
-      border-left: 8px solid;
-    }
-
-    .feedback.success {
-      background: rgba(16, 185, 129, 0.2);
-      border-left-color: var(--success-emerald);
-      display: block;
-      color: #dcfce7;
-    }
-
-    .feedback.error {
-      background: rgba(239, 68, 68, 0.2);
-      border-left-color: var(--danger-coral);
-      display: block;
-      color: #fee2e2;
-    }
-
-    .certificate {
-      text-align: center;
-      padding: 2.5rem 1.5rem;
-      background: linear-gradient(145deg, #b4530920, #7e22ce30);
-      border-radius: 3rem;
-      border: 2px solid var(--accent-blaze);
-      box-shadow: 0 30px 40px -10px #f9731680, inset 0 0 50px #fcd34d30;
-      backdrop-filter: blur(6px);
-    }
-
-    .certificate i {
-      font-size: 4.5rem;
-      color: gold;
-      filter: drop-shadow(0 0 25px #fbbf24);
-    }
-
-    .certificate h2 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: white;
-      text-shadow: 0 0 15px gold, 0 0 30px #f97316;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* RESPONSIVE TWEAKS */
-    @media (max-width: 800px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-
-      .question-title {
-        font-size: 2rem;
-      }
-
-      .logo {
-        font-size: 2.4rem;
-      }
-
-      .logo i {
-        font-size: 2.2rem;
-      }
-
-      .auth-title {
-        font-size: 3rem;
-      }
-
-      .languages-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      }
-    }
-
-    @media (max-width: 500px) {
-      .actions .btn {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
-      }
-
-      .question-title {
-        font-size: 1.7rem;
-      }
-
-      .navbar {
-        flex-direction: column;
-        align-items: start;
-      }
-
-      .user-menu {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
+    .matrix-footer { text-align: right; color: var(--text-muted); margin-top: 2rem; border-top: 1px dashed #3b82f630; padding-top: 1rem; }
   </style>
 </head>
-
 <body>
-  <!-- AUTH SCREEN -->
+  <!-- AUTH -->
   <div id="authScreen" class="auth-screen">
     <div class="auth-card">
-      <div class="auth-title">
-        <i class="fas fa-code"></i> Vexora•Code
-      </div>
-      <div class="auth-sub">500 levels · true mastery</div>
-      <button class="google-btn" id="googleSignIn">
-        <i class="fab fa-google" style="color: #4285F4; font-size: 1.6rem;"></i>
-        <span>continue with Google</span>
-      </button>
-      <p style="color: var(--text-soft); margin-top: 2rem;">
-        <i class="fas fa-lock"></i> secured by Firebase
-      </p>
+      <div class="auth-title"><i class="fa-solid fa-code"></i>Vexora•Code</div>
+      <div style="font-size:1.4rem; margin-bottom:2rem;">interactive quiz · code & learn</div>
+      <button class="google-btn" id="googleSignIn"><i class="fab fa-google" style="color:#4285F4; font-size:1.8rem;"></i> continue with Google</button>
     </div>
   </div>
 
   <!-- MAIN APP -->
   <div id="mainApp" class="main-app">
-    <div class="app-container">
-      <!-- Navbar with ultra-clear logo -->
+    <div class="app-wrapper">
       <nav class="navbar">
-        <div class="logo">
-          <i class="fas fa-terminal"></i> Vexora•Code
-        </div>
-        <div class="user-menu">
-          <i class="fas fa-user-astronaut"></i>
-          <span id="userName">Coder</span>
-          <button class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> exit
-          </button>
-        </div>
+        <div class="logo"><i class="fas fa-terminal"></i> Vexora•Code</div>
+        <div class="user-menu"><i class="fa-regular fa-user"></i><span id="userName">Coder</span><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> exit</button></div>
       </nav>
 
-      <!-- Language Grid -->
-      <div class="languages-grid" id="languageGrid"></div>
-
-      <!-- Main Content (levels + question) -->
-      <div class="main-content" id="mainContent" style="display: none;">
-        <!-- Levels Sidebar -->
-        <div class="levels-sidebar">
-          <div class="levels-header">
-            <h2><span id="selectedLangName">JavaScript</span> · levels</h2>
-            <span id="totalProgress">0/500</span>
-          </div>
-          <div id="levelsList" class="levels-list"></div>
-        </div>
-
-        <!-- Question Panel & Certificate -->
-        <div class="question-panel">
-          <div id="questionContainer">
-            <div class="question-header">
-              <h1 class="question-title" id="questionTitle">Level 1</h1>
-              <span class="level-difficulty" id="difficultyBadge">Easy</span>
-            </div>
-            <div class="question-description" id="questionDescription">
-              Select a level to begin
-            </div>
-            <div class="answer-area">
-              <textarea class="answer-input" id="answerInput"
-                placeholder="Write your solution here... (ctrl+enter to submit)"></textarea>
-            </div>
-            <div class="actions">
-              <button class="btn btn-primary" id="submitAnswer"><i class="fas fa-paper-plane"></i> Submit</button>
-              <button class="btn btn-outline" id="resetLevel"><i class="fas fa-undo-alt"></i> Reset</button>
-              <button class="btn btn-outline" id="previousLevel"><i class="fas fa-chevron-left"></i> Prev</button>
-              <button class="btn btn-outline" id="nextLevel">Next <i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="feedback" id="feedback"></div>
-          </div>
-
-          <!-- Certificate (hidden until all complete) -->
-          <div id="certificate" class="certificate hidden">
-            <i class="fas fa-crown"></i>
-            <h2>mastery unlocked</h2>
-            <p style="font-size: 1.4rem;">You completed all 500 levels in <span id="certLang"></span>.</p>
-            <p style="color: var(--text-soft); margin-top: 0.8rem;">✦ legendary developer ✦</p>
-            <i class="fas fa-certificate" style="font-size: 4rem; margin-top: 1rem; color: var(--accent-blaze);"></i>
-          </div>
-        </div>
+      <!-- Language matrix (collapsible) -->
+      <div class="lang-section-header" id="toggleLangBtn">
+        <h2><i class="fas fa-cubes"></i> language matrix</h2>
+        <span class="arrow"><i class="fas fa-chevron-down"></i></span>
       </div>
+      <div id="languageGrid" class="languages-grid"></div>
+
+      <!-- QUIZ PANEL -->
+      <div id="quizPanel" class="quiz-panel">
+        <div class="quiz-header">
+          <span class="lang-indicator" id="quizLangDisplay"><i class="fab fa-js"></i> JavaScript · level <span id="levelDisplaySpan">1</span>/500</span>
+          <span class="difficulty-badge" id="difficultyBadge" data-diff="easy">easy</span>
+        </div>
+        <div id="quizQuestion" class="question-text">// Write a function to reverse a string.</div>
+
+        <!-- dynamic container: MCQ or coding -->
+        <div id="quizDynamicArea"></div>
+
+        <!-- output console -->
+        <div id="outputConsole" class="output-console"><i class="fa fa-terminal"></i>  run your code to see output / errors</div>
+
+        <!-- action buttons -->
+        <div class="quiz-actions" id="quizActionRow">
+          <button class="primary-btn" id="runCodeBtn"><i class="fas fa-play"></i> run code</button>
+          <button class="success-btn" id="submitAnswerBtn"><i class="fas fa-check"></i> submit answer</button>
+          <button class="secondary-btn" id="nextQuestionBtn"><i class="fas fa-arrow-right"></i> next question</button>
+          <button class="next-btn" id="nextLevelBtn" style="display: none;"><i class="fas fa-rocket"></i> next level</button>
+        </div>
+
+        <!-- celebration card (initially hidden) -->
+        <div id="progressCelebrationCard" class="progress-celebration" style="display: none;"></div>
+      </div>
+
+      <div class="matrix-footer"><i class="fas fa-globe"></i> 11 languages · progressive levels 1‑500 · instant feedback</div>
     </div>
   </div>
 
   <script>
-    // -------------------- FIREBASE CONFIG --------------------
-    const firebaseConfig = {
-      apiKey: "AIzaSyDhhFKYAx1PPjhwV53H18cztT0MYvLxJgs",
-      authDomain: "vexoracode-8c9ed.firebaseapp.com",
-      projectId: "vexoracode-8c9ed",
-      storageBucket: "vexoracode-8c9ed.firebasestorage.app",
-      messagingSenderId: "787559922648",
-      appId: "1:787559922648:web:308047356509bbcaff10ad"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // ---------- ENHANCED QUESTION DATABASE ----------
-    const languages = [
-      { id: 'javascript', name: 'JavaScript', icon: 'fab fa-js', color: '#f7df1e' },
-      { id: 'python', name: 'Python', icon: 'fab fa-python', color: '#3776ab' },
-      { id: 'java', name: 'Java', icon: 'fab fa-java', color: '#b0723a' },
-      { id: 'cpp', name: 'C++', icon: 'fas fa-code', color: '#00599c' },
-      { id: 'csharp', name: 'C#', icon: 'fas fa-code', color: '#239120' },
-      { id: 'php', name: 'PHP', icon: 'fab fa-php', color: '#777bb4' },
-      { id: 'ruby', name: 'Ruby', icon: 'fa-regular fa-gem', color: '#cc342d' },
-      { id: 'swift', name: 'Swift', icon: 'fab fa-swift', color: '#fa7343' },
-      { id: 'kotlin', name: 'Kotlin', icon: 'fab fa-android', color: '#7f52ff' },
-      { id: 'go', name: 'Go', icon: 'fa-brands fa-golang', color: '#00add8' },
-      { id: 'rust', name: 'Rust', icon: 'fas fa-cog', color: '#dea584' },
-      { id: 'typescript', name: 'TypeScript', icon: 'fab fa-js', color: '#3178c6' }
-    ];
-
-    function generateQuestions(lang) {
-      const q = [];
-      const topics = {
-        'JavaScript': ['closures', 'promises', 'prototypes', 'event loop', 'modules', 'generators', 'Proxy', 'WeakMap', 'worker', 'async'],
-        'Python': ['decorators', 'generators', 'contextlib', 'asyncio', 'metaclass', 'cython', 'numba', 'pandas', 'numpy', 'django'],
-        'Java': ['streams', 'optional', 'concurrency', 'reflection', 'modules', 'jni', 'bytecode', 'gc', 'jmh', 'record'],
-        'C++': ['smart_ptr', 'move', 'template', 'concept', 'coroutine', 'ranges', 'modules', 'constexpr', 'atomic', 'variant'],
-        'C#': ['linq', 'async', 'reflection', 'dynamic', 'expression', 'roslyn', 'il', 'span', 'record', 'pattern'],
-        'PHP': ['traits', 'generators', 'ffi', 'match', 'attributes', 'enums', 'fibers', 'composer', 'psr', 'promise'],
-        'Ruby': ['blocks', 'proc', 'lambda', 'module', 'prepend', 'refine', 'ractor', 'fiber', 'gvl', 'mruby'],
-        'Swift': ['closure', 'protocol', 'generics', 'async', 'actor', 'result', 'propertyWrapper', 'combine', 'swiftui', 'metal'],
-        'Kotlin': ['coroutine', 'flow', 'multiplatform', 'delegated', 'sealed', 'inline', 'reified', 'context', 'ksp', 'native'],
-        'Go': ['goroutine', 'channel', 'interface', 'reflect', 'unsafe', 'cgo', 'plugin', 'sync', 'atomic', 'pprof'],
-        'Rust': ['ownership', 'lifetime', 'trait', 'macro', 'unsafe', 'ffi', 'async', 'tokio', 'rayon', 'wasm'],
-        'TypeScript': ['type', 'interface', 'generic', 'decorator', 'conditional', 'mapped', 'template', 'infer', 'namespace', 'compiler']
+    (function() {
+      // ---------- Firebase ----------
+      const firebaseConfig = {
+        apiKey: "AIzaSyDhhFKYAx1PPjhwV53H18cztT0MYvLxJgs",
+        authDomain: "vexoracode-8c9ed.firebaseapp.com",
+        projectId: "vexoracode-8c9ed",
+        storageBucket: "vexoracode-8c9ed.firebasestorage.app",
+        messagingSenderId: "787559922648",
+        appId: "1:787559922648:web:308047356509bbcaff10ad"
       };
-      const fallbackTopics = topics[lang] || topics['JavaScript'];
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-      for (let i = 1; i <= 500; i++) {
-        let difficulty;
-        if (i <= 100) difficulty = 'easy';
-        else if (i <= 200) difficulty = 'medium';
-        else if (i <= 300) difficulty = 'hard';
-        else difficulty = 'expert';
+      // ---------- Languages ----------
+      const languages = [
+        { id: 'javascript', name: 'JavaScript', icon: 'fab fa-js', color: '#f7df1e' },
+        { id: 'python', name: 'Python', icon: 'fab fa-python', color: '#3776ab' },
+        { id: 'java', name: 'Java', icon: 'fab fa-java', color: '#b07219' },
+        { id: 'cpp', name: 'C++', icon: 'fas fa-code', color: '#00599c' },
+        { id: 'csharp', name: 'C#', icon: 'fas fa-code', color: '#9b4f96' },
+        { id: 'go', name: 'Go', icon: 'fab fa-golang', color: '#00add8' },
+        { id: 'rust', name: 'Rust', icon: 'fab fa-rust', color: '#b7410e' },
+        { id: 'swift', name: 'Swift', icon: 'fab fa-swift', color: '#f05138' },
+        { id: 'php', name: 'PHP', icon: 'fab fa-php', color: '#777bb4' },
+        { id: 'html', name: 'HTML', icon: 'fab fa-html5', color: '#e34c26' },
+        { id: 'css', name: 'CSS', icon: 'fab fa-css3-alt', color: '#264de4' }
+      ];
 
-        const topic = fallbackTopics[(i - 1) % fallbackTopics.length];
-        q.push({
-          id: i,
-          title: `Level ${i}: ${difficulty} · ${topic}`,
-          description: `# ${lang} ${topic} challenge\n\nBuild a ${difficulty} implementation.\n\nRequirements:\n- Handle edge cases\n- Optimize for ${i > 200 ? 'performance' : 'readability'}\n- Use modern ${lang} features\n\nExample:\nInput: sample_${i}\nOutput: expected_result_${i}`,
-          difficulty: difficulty,
-        });
-      }
-      return q;
-    }
+      // ---------- Question bank (always based on current level) ----------
+      function generateQuestionForLevel(langId, level) {
+        // level is 0‑based (0 → level1) ; we store completed up to 500
+        const type = Math.random() < 0.6 ? 'coding' : 'mcq';
+        let difficulty = 'easy';
+        if (level > 300) difficulty = 'expert';
+        else if (level > 180) difficulty = 'hard';
+        else if (level > 70) difficulty = 'medium';
 
-    const questionsDB = {};
-    languages.forEach(l => { questionsDB[l.id] = generateQuestions(l.name); });
+        const lang = languages.find(l => l.id === langId) || languages[0];
+        const baseQuestion = `[${lang.name} - level ${level+1}] `;
 
-    // ---------- STATE ----------
-    let currentUser = null;
-    let userProgress = {};
-    let currentLang = 'javascript';
-    let currentLevel = 1;
-
-    function initProgress() {
-      const p = {};
-      languages.forEach(l => {
-        p[l.id] = {
-          completed: new Array(500).fill(false),
-          currentLevel: 1,
-          answers: {}
-        };
-      });
-      return p;
-    }
-
-    async function loadUserProgress(uid) {
-      try {
-        const doc = await db.collection('userProgress').doc(uid).get();
-        if (doc.exists) {
-          userProgress = doc.data().progress || initProgress();
+        if (type === 'mcq') {
+          return {
+            type: 'mcq',
+            difficulty,
+            question: baseQuestion + `Which syntax is correct for ${langId}?`,
+            options: [
+              `option A: common mistake in ${langId}`,
+              `option B: ✅ correct answer (always B)`,
+              `option C: error‑prone variant`,
+              `option D: outdated pattern`
+            ],
+            correctIndex: 1   // B is always correct (for demo)
+          };
         } else {
-          userProgress = initProgress();
-          await saveUserProgress(uid);
+          const tasks = [
+            `Write a function that reverses a string.`,
+            `Create a function to check if a number is prime.`,
+            `Implement a recursive fibonacci function.`,
+            `Write a loop that prints numbers 1 to 10.`,
+            `Define a class with a constructor and a method.`,
+            `Write a function that returns the sum of an array.`,
+            `Use a conditional to check even/odd.`,
+            `Create a simple promise / async function.`
+          ];
+          return {
+            type: 'coding',
+            difficulty,
+            question: baseQuestion + tasks[level % tasks.length],
+            starterCode: {
+              javascript: '// write your solution here\nfunction solution() {\n  \n}',
+              python: '# write your solution here\ndef solution():\n    pass',
+              java: '// write your solution\npublic class Main {\n    public static void main(String[] args) {}\n}',
+              cpp: '// write your solution\n#include <iostream>\nint main() {\n    return 0;\n}',
+              csharp: '// write your solution\nusing System;\nclass Program { static void Main() {} }',
+              go: '// write your solution\npackage main\nfunc main() {}',
+              rust: '// write your solution\nfn main() {}',
+              swift: '// write your solution\nimport Foundation',
+              php: '<?php\n// write your solution\n?>',
+              html: '<!-- write your html -->',
+              css: '/* write your css */'
+            }[langId] || '// write your code'
+          };
         }
-      } catch (e) {
-        console.warn("using local fallback", e);
-        userProgress = initProgress();
       }
-      renderLanguageGrid();
-      showLanguageContent(currentLang);
-    }
 
-    async function saveUserProgress(uid) {
-      if (!uid) return;
-      try {
-        await db.collection('userProgress').doc(uid).set({
-          progress: userProgress,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (e) { console.warn("save failed", e); }
-    }
+      // ---------- State ----------
+      let currentUser = null;
+      let userProgress = {};        // { langId: { completed: boolean[500], score } }
+      let selectedLangId = 'javascript';
+      let currentQuestion = null;
+      let selectedMcqIndex = null;
+      let userCode = '';
 
-    function renderLanguageGrid() {
-      const grid = document.getElementById('languageGrid');
-      grid.innerHTML = languages.map(l => {
-        const prog = userProgress[l.id] || { completed: new Array(500).fill(false) };
-        const completedCount = prog.completed.filter(Boolean).length;
-        const percent = (completedCount / 500) * 100;
-        return `
-                <div class="lang-card ${currentLang === l.id ? 'selected' : ''}" data-lang="${l.id}">
-                    <i class="${l.icon}" style="color:${l.color}; font-size:2.6rem;"></i>
-                    <div class="lang-name">${l.name}</div>
-                    <div class="lang-progress">${completedCount}/500 mastered</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-                </div>`;
-      }).join('');
-      document.querySelectorAll('.lang-card').forEach(c => c.addEventListener('click', (e) => {
-        const lang = c.dataset.lang;
-        if (lang && lang !== currentLang) {
-          currentLang = lang;
-          renderLanguageGrid();
-          showLanguageContent(lang);
+      // Helper: get current level for a language (first incomplete level, 0‑based) and also total completed count
+      function getCurrentLevel(langId) {
+        const prog = userProgress[langId];
+        if (!prog || !prog.completed) return 0;
+        const arr = prog.completed;
+        for (let i = 0; i < arr.length; i++) {
+          if (!arr[i]) return i;
         }
-      }));
-    }
-
-    function showLanguageContent(langId) {
-      document.getElementById('mainContent').style.display = 'grid';
-      const langObj = languages.find(l => l.id === langId);
-      document.getElementById('selectedLangName').textContent = langObj.name;
-
-      const prog = userProgress[langId] || { completed: new Array(500).fill(false) };
-      const firstMissing = prog.completed.findIndex(c => !c);
-      currentLevel = firstMissing === -1 ? 500 : firstMissing + 1;
-      renderLevelsList(langId);
-      loadQuestion(langId, currentLevel);
-    }
-
-    function renderLevelsList(langId) {
-      const prog = userProgress[langId] || { completed: new Array(500).fill(false) };
-      const completedCount = prog.completed.filter(Boolean).length;
-      document.getElementById('totalProgress').innerText = `${completedCount}/500`;
-
-      const container = document.getElementById('levelsList');
-      let html = '';
-      for (let i = 1; i <= 500; i++) {
-        const completed = prog.completed[i - 1];
-        const active = (i === currentLevel);
-        const difficulty = i <= 100 ? 'easy' : i <= 200 ? 'medium' : i <= 300 ? 'hard' : 'expert';
-        html += `<div class="level-item ${completed ? 'completed' : ''} ${active ? 'active' : ''}" data-level="${i}">
-                    <div><span style="font-weight:700;">Level ${i}</span></div>
-                    <span class="level-difficulty difficulty-${difficulty}">${difficulty}</span>
-                </div>`;
+        return 499; // all completed, stay at max
       }
-      container.innerHTML = html;
-      container.querySelectorAll('.level-item').forEach(el => {
-        el.addEventListener('click', () => {
-          const lev = parseInt(el.dataset.level);
-          if (!isNaN(lev)) { currentLevel = lev; renderLevelsList(langId); loadQuestion(langId, lev); }
+
+      function getCompletedCount(langId) {
+        const prog = userProgress[langId];
+        if (!prog || !prog.completed) return 0;
+        return prog.completed.filter(Boolean).length;
+      }
+
+      // Save progress to firestore
+      async function saveUserProgress(uid) {
+        if (!uid) return;
+        try {
+          await db.collection('userProgress').doc(uid).set({ progress: userProgress, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } catch (e) {}
+      }
+
+      // Render language grid
+      function renderLanguageGrid() {
+        const grid = document.getElementById('languageGrid');
+        grid.innerHTML = languages.map(l => {
+          const prog = userProgress[l.id] || { completed: new Array(500).fill(false) };
+          const completedCount = prog.completed.filter(Boolean).length;
+          const percent = (completedCount / 500) * 100;
+          const selectedClass = (selectedLangId === l.id) ? 'selected' : '';
+          return `<div class="lang-card ${selectedClass}" data-lang="${l.id}">
+            <i class="${l.icon}" style="color:${l.color}; font-size:3.2rem;"></i>
+            <div class="lang-name">${l.name}</div>
+            <div class="lang-progress"><i class="fa-solid fa-trophy" style="color:gold;"></i> ${completedCount}/500</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
+          </div>`;
+        }).join('');
+
+        document.querySelectorAll('.lang-card').forEach(card => {
+          card.addEventListener('click', (e) => {
+            const langId = card.dataset.lang;
+            document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedLangId = langId;
+            loadCurrentLevelQuestion(langId);
+            // Hide celebration when switching language
+            document.getElementById('progressCelebrationCard').style.display = 'none';
+          });
         });
-      });
-    }
-
-    function loadQuestion(langId, level) {
-      const q = questionsDB[langId][level - 1];
-      document.getElementById('questionTitle').innerHTML = `Level ${level}: ${q.title}`;
-      document.getElementById('questionDescription').innerText = q.description;
-      const badge = document.getElementById('difficultyBadge');
-      badge.innerText = q.difficulty;
-      badge.className = `level-difficulty difficulty-${q.difficulty}`;
-
-      const saved = userProgress[langId]?.answers?.[level];
-      document.getElementById('answerInput').value = saved || '';
-
-      const completed = userProgress[langId]?.completed[level - 1];
-      if (completed) {
-        document.getElementById('feedback').className = 'feedback success';
-        document.getElementById('feedback').innerHTML = '<i class="fas fa-check-circle"></i> Level completed!';
-      } else {
-        document.getElementById('feedback').className = 'feedback';
-        document.getElementById('feedback').innerHTML = '';
       }
 
-      const allDone = userProgress[langId]?.completed.every(Boolean);
-      if (allDone) {
-        document.getElementById('certLang').innerText = languages.find(l => l.id === langId).name;
-        document.getElementById('certificate').classList.remove('hidden');
-        document.getElementById('questionContainer').classList.add('hidden');
-      } else {
-        document.getElementById('certificate').classList.add('hidden');
-        document.getElementById('questionContainer').classList.remove('hidden');
+      // Load question for the CURRENT incomplete level of given language
+      function loadCurrentLevelQuestion(langId) {
+        selectedMcqIndex = null;
+        document.getElementById('nextLevelBtn').style.display = 'none'; // hide next level initially
+        document.getElementById('progressCelebrationCard').style.display = 'none'; // hide celebration card
+        const level = getCurrentLevel(langId);
+        currentQuestion = generateQuestionForLevel(langId, level);
+        updateQuestionUI(langId, level);
       }
-    }
 
-    function validateAnswer(answer, question, lang) {
-      if (!answer || answer.length < 20) return false;
-      const codeRegex = /[{}()[\]]|function|class|const|let|=>|def|public|private|interface|func|impl|fn/;
-      return codeRegex.test(answer);
-    }
+      // Load a new question for the same level (doesn't advance, just refreshes)
+      function loadNextQuestionSameLevel() {
+        if (!selectedLangId) return;
+        selectedMcqIndex = null;
+        const level = getCurrentLevel(selectedLangId); // still same level (incomplete)
+        currentQuestion = generateQuestionForLevel(selectedLangId, level);
+        updateQuestionUI(selectedLangId, level);
+        document.getElementById('nextLevelBtn').style.display = 'none'; // hide next level until correct
+        document.getElementById('progressCelebrationCard').style.display = 'none';
+      }
 
-    async function submitAnswer() {
-      if (!currentUser) return;
-      const answer = document.getElementById('answerInput').value.trim();
-      if (!answer) { showFeedback('Write something first', 'error'); return; }
-      const valid = validateAnswer(answer, null, currentLang);
-      if (valid) {
-        userProgress[currentLang].completed[currentLevel - 1] = true;
-        if (!userProgress[currentLang].answers) userProgress[currentLang].answers = {};
-        userProgress[currentLang].answers[currentLevel] = answer;
+      // update UI with currentQuestion + level
+      function updateQuestionUI(langId, level) {
+        const lang = languages.find(l => l.id === langId) || languages[0];
+        const completed = getCompletedCount(langId);
+        document.getElementById('quizLangDisplay').innerHTML = `<i class="${lang.icon}" style="color:${lang.color};"></i> ${lang.name} · level <span id="levelDisplaySpan">${level+1}</span>/500 (${completed} solved)`;
+        document.getElementById('difficultyBadge').innerText = currentQuestion.difficulty;
+        document.getElementById('difficultyBadge').setAttribute('data-diff', currentQuestion.difficulty);
+        document.getElementById('quizQuestion').innerText = currentQuestion.question;
+
+        const dynamicArea = document.getElementById('quizDynamicArea');
+        if (currentQuestion.type === 'mcq') {
+          const options = currentQuestion.options.map((opt, idx) => {
+            const selClass = (selectedMcqIndex === idx) ? 'selected' : '';
+            return `<div class="mcq-option ${selClass}" data-opt-index="${idx}"><i class="fa-regular fa-circle"></i> ${opt}</div>`;
+          }).join('');
+          dynamicArea.innerHTML = `<div class="mcq-options">${options}</div>`;
+          document.querySelectorAll('.mcq-option').forEach(el => {
+            el.addEventListener('click', (e) => {
+              document.querySelectorAll('.mcq-option').forEach(opt => opt.classList.remove('selected'));
+              el.classList.add('selected');
+              selectedMcqIndex = parseInt(el.dataset.optIndex, 10);
+            });
+          });
+        } else {
+          const starter = currentQuestion.starterCode || '// write your code';
+          userCode = starter;
+          dynamicArea.innerHTML = `<div class="code-editor"><textarea id="codeTextarea">${starter.replace(/</g,'&lt;')}</textarea></div>`;
+          const ta = document.getElementById('codeTextarea');
+          ta.value = starter;
+          ta.addEventListener('input', (e) => { userCode = e.target.value; });
+        }
+        // reset console
+        document.getElementById('outputConsole').innerHTML = '<i class="fa fa-terminal"></i>  run your code to see output / errors';
+        document.getElementById('outputConsole').classList.remove('error-console');
+      }
+
+      // ---------- Run code (simulated) ----------
+      function runCode() {
+        const consoleDiv = document.getElementById('outputConsole');
+        if (currentQuestion.type === 'coding') {
+          const code = document.getElementById('codeTextarea')?.value || userCode;
+          if (code.includes('error') || code.includes('throw') || code.includes('syntax')) {
+            consoleDiv.innerHTML = '<i class="fa fa-exclamation-triangle" style="color:#f87171;"></i>  SyntaxError: unexpected token (simulated)';
+            consoleDiv.classList.add('error-console');
+          } else if (code.trim() === '') {
+            consoleDiv.innerHTML = '<i class="fa fa-circle-exclamation"></i>  no code to run';
+            consoleDiv.classList.remove('error-console');
+          } else {
+            consoleDiv.innerHTML = '<i class="fa fa-check-circle" style="color:#4ade80;"></i>  Program executed (simulated). Output: Hello, world!';
+            consoleDiv.classList.remove('error-console');
+          }
+        } else {
+          consoleDiv.innerHTML = '<i class="fa fa-info-circle"></i>  MCQ: select an option and use "submit answer".';
+          consoleDiv.classList.remove('error-console');
+        }
+      }
+
+      // ---------- Show progress celebration card ----------
+      function showProgressCelebration(langId, completedNow) {
+        const lang = languages.find(l => l.id === langId) || languages[0];
+        const totalCompleted = getCompletedCount(langId);
+        const percent = ((totalCompleted / 500) * 100).toFixed(1);
+        const card = document.getElementById('progressCelebrationCard');
+        card.innerHTML = `
+          <div class="progress-message">
+            <i class="${lang.icon}" style="color:${lang.color}; font-size:3rem;"></i>
+            🎉 level ${completedNow+1} completed in ${lang.name}!
+          </div>
+          <div class="progress-stats">
+            <i class="fa-solid fa-star" style="color:gold;"></i>  ${totalCompleted}/500  (${percent}%)
+          </div>
+        `;
+        card.style.display = 'flex';
+      }
+
+      // ---------- Submit answer ----------
+      async function submitAnswer() {
+        if (!currentUser || !selectedLangId || !currentQuestion) return;
+        const consoleDiv = document.getElementById('outputConsole');
+        let isCorrect = false;
+
+        if (currentQuestion.type === 'mcq') {
+          if (selectedMcqIndex === null) {
+            consoleDiv.innerHTML = '<i class="fa fa-exclamation"></i>  Please select an option first.';
+            consoleDiv.classList.add('error-console');
+            return;
+          }
+          isCorrect = (selectedMcqIndex === currentQuestion.correctIndex);  // dynamic correct index
+          if (isCorrect) {
+            consoleDiv.innerHTML = '<i class="fa fa-check-circle" style="color:#4ade80;"></i>  Correct! Well done.';
+            consoleDiv.classList.remove('error-console');
+          } else {
+            // Reveal the correct answer on wrong attempt
+            const correctAnswerText = currentQuestion.options[currentQuestion.correctIndex];
+            consoleDiv.innerHTML = `<i class="fa fa-times-circle" style="color:#f87171;"></i>  Incorrect. The correct answer is: "${correctAnswerText}".`;
+            consoleDiv.classList.add('error-console');
+            return;   // wrong → no progress
+          }
+        } else { // coding
+          const code = document.getElementById('codeTextarea')?.value || userCode;
+          if (code.includes('error') || code.includes('throw') || code.includes('syntax')) {
+            consoleDiv.innerHTML = '<i class="fa fa-times-circle"></i>  Your code has errors. Fix and run again.';
+            consoleDiv.classList.add('error-console');
+            return;
+          } else {
+            // naive acceptance: contains "function" or "def" or "public"
+            if (code.includes('function') || code.includes('def ') || code.includes('public') || code.includes('class')) {
+              isCorrect = true;
+              consoleDiv.innerHTML = '<i class="fa fa-check-circle"></i>  Code accepted (simulated). Good job!';
+              consoleDiv.classList.remove('error-console');
+            } else {
+              consoleDiv.innerHTML = '<i class="fa fa-times-circle"></i>  Code does not meet requirements.';
+              consoleDiv.classList.add('error-console');
+              return;
+            }
+          }
+        }
+
+        // ---------- CORRECT ----------
+        // Mark current level as completed
+        const level = getCurrentLevel(selectedLangId); // 0‑based
+        if (!userProgress[selectedLangId]) userProgress[selectedLangId] = { completed: new Array(500).fill(false) };
+        userProgress[selectedLangId].completed[level] = true;
         await saveUserProgress(currentUser.uid);
-        showFeedback('✨ Correct!', 'success');
-        if (currentLevel < 500) {
-          setTimeout(() => {
-            currentLevel++;
-            renderLevelsList(currentLang);
-            loadQuestion(currentLang, currentLevel);
-          }, 600);
+        renderLanguageGrid();   // update progress bars
+
+        // Update the header to show new completed count
+        const completed = getCompletedCount(selectedLangId);
+        const lang = languages.find(l => l.id === selectedLangId);
+        document.getElementById('quizLangDisplay').innerHTML = `<i class="${lang.icon}" style="color:${lang.color};"></i> ${lang.name} · level <span id="levelDisplaySpan">${level+1}</span>/500 (${completed} solved)`;
+
+        // Show celebration card with updated progress
+        showProgressCelebration(selectedLangId, level);
+
+        // Show "next level" button
+        document.getElementById('nextLevelBtn').style.display = 'inline-flex';
+      }
+
+      // ---------- Next level ----------
+      function nextLevel() {
+        // advance to next incomplete level (which is the current level+1 because we just completed current)
+        // reload question for that new level
+        loadCurrentLevelQuestion(selectedLangId);
+        // nextLevelBtn hidden inside loadCurrentLevelQuestion
+      }
+
+      // ---------- Random / Next question (now just fresh question for same level) ----------
+      function loadNextQuestion() {
+        loadNextQuestionSameLevel();
+      }
+
+      // ---------- Load user progress ----------
+      function initProgress() {
+        let p = {};
+        languages.forEach(l => { p[l.id] = { completed: new Array(500).fill(false), score: 0 }; });
+        return p;
+      }
+
+      async function loadUserProgress(uid) {
+        try {
+          const doc = await db.collection('userProgress').doc(uid).get();
+          if (doc.exists) userProgress = doc.data().progress || initProgress();
+          else { userProgress = initProgress(); await saveUserProgress(uid); }
+        } catch { userProgress = initProgress(); }
+        renderLanguageGrid();
+        if (!selectedLangId) selectedLangId = languages[0].id;
+        loadCurrentLevelQuestion(selectedLangId);
+      }
+
+      // ---------- Event binding ----------
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('googleSignIn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+        document.getElementById('toggleLangBtn').addEventListener('click', (e) => {
+          document.getElementById('languageGrid').classList.toggle('collapsed');
+          e.currentTarget.classList.toggle('collapsed');
+        });
+        document.getElementById('runCodeBtn').addEventListener('click', runCode);
+        document.getElementById('submitAnswerBtn').addEventListener('click', submitAnswer);
+        document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+          loadNextQuestion();
+        });
+        document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+      });
+
+      auth.onAuthStateChanged(async user => {
+        if (user) {
+          currentUser = user;
+          document.getElementById('authScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+          document.getElementById('userName').innerText = user.displayName || user.email;
+          await loadUserProgress(user.uid);
         } else {
-          renderLevelsList(currentLang);
-          loadQuestion(currentLang, currentLevel);
+          document.getElementById('authScreen').style.display = 'flex';
+          document.getElementById('mainApp').style.display = 'none';
         }
-      } else {
-        showFeedback('❌ Not quite. Check syntax & completeness', 'error');
-      }
-    }
-
-    function showFeedback(msg, type) {
-      const fb = document.getElementById('feedback');
-      fb.className = `feedback ${type}`;
-      fb.innerHTML = msg;
-    }
-
-    function resetLevel() {
-      if (!currentUser || !confirm('Reset this level?')) return;
-      userProgress[currentLang].completed[currentLevel - 1] = false;
-      delete userProgress[currentLang].answers?.[currentLevel];
-      document.getElementById('answerInput').value = '';
-      saveUserProgress(currentUser.uid);
-      renderLevelsList(currentLang);
-      loadQuestion(currentLang, currentLevel);
-    }
-
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        currentUser = user;
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('userName').innerText = user.displayName || user.email;
-        await loadUserProgress(user.uid);
-      } else {
-        document.getElementById('authScreen').style.display = 'flex';
-        document.getElementById('mainApp').style.display = 'none';
-      }
-    });
-
-    document.getElementById('googleSignIn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-    document.getElementById('submitAnswer').addEventListener('click', submitAnswer);
-    document.getElementById('resetLevel').addEventListener('click', resetLevel);
-    document.getElementById('previousLevel').addEventListener('click', () => { if (currentLevel > 1) { currentLevel--; renderLevelsList(currentLang); loadQuestion(currentLang, currentLevel); } });
-    document.getElementById('nextLevel').addEventListener('click', () => { if (currentLevel < 500) { currentLevel++; renderLevelsList(currentLang); loadQuestion(currentLang, currentLevel); } });
-    document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') submitAnswer(); });
+      });
+    })();
   </script>
 </body>
-
 </html>
